@@ -24,10 +24,10 @@ import java.io.File;
 import static org.junit.Assert.*;
 
 public class TestH5F {
-    @Rule public TestName testname = new TestName();
+    @Rule
+    public TestName testname = new TestName();
     private static final String H5_FILE = "testF.h5";
     private static final String H5_FILE2 = "testF2.h5";
-
     private static final int COUNT_OBJ_FILE = 1;
     private static final int COUNT_OBJ_DATASET = 0;
     private static final int COUNT_OBJ_GROUP = 0;
@@ -35,27 +35,30 @@ public class TestH5F {
     private static final int COUNT_OBJ_ATTR = 0;
     private static final int COUNT_OBJ_ALL = (COUNT_OBJ_FILE
             + COUNT_OBJ_DATASET + COUNT_OBJ_GROUP + COUNT_OBJ_DATATYPE + COUNT_OBJ_ATTR);
-    private static final int[] OBJ_COUNTS = { COUNT_OBJ_FILE,
+    private static final int[] OBJ_COUNTS = {COUNT_OBJ_FILE,
             COUNT_OBJ_DATASET, COUNT_OBJ_GROUP, COUNT_OBJ_DATATYPE,
-            COUNT_OBJ_ATTR, COUNT_OBJ_ALL };
-    private static final int[] OBJ_TYPES = { HDF5Constants.H5F_OBJ_FILE,
+            COUNT_OBJ_ATTR, COUNT_OBJ_ALL};
+    private static final int[] OBJ_TYPES = {HDF5Constants.H5F_OBJ_FILE,
             HDF5Constants.H5F_OBJ_DATASET, HDF5Constants.H5F_OBJ_GROUP,
             HDF5Constants.H5F_OBJ_DATATYPE, HDF5Constants.H5F_OBJ_ATTR,
-            HDF5Constants.H5F_OBJ_ALL };
+            HDF5Constants.H5F_OBJ_ALL};
     long H5fid = HDF5Constants.H5I_INVALID_HID;
 
     private final void _deleteFile(String filename) {
         File file = new File(filename);
 
         if (file.exists()) {
-            try {file.delete();} catch (SecurityException e) {}
+            try {
+                file.delete();
+            } catch (SecurityException e) {
+            }
         }
     }
 
     @Before
     public void createH5file()
             throws HDF5LibraryException, NullPointerException {
-        assertTrue("H5 open ids is 0",H5.getOpenIDCount()==0);
+        assertTrue("H5 open ids is 0", H5.getOpenIDCount() == 0);
         System.out.print(testname.getMethodName());
 
         H5fid = H5.H5Fcreate(H5_FILE, HDF5Constants.H5F_ACC_TRUNC,
@@ -66,10 +69,14 @@ public class TestH5F {
     @After
     public void deleteH5file() throws HDF5LibraryException {
         if (H5fid > 0) {
-            try {H5.H5Fclose(H5fid);} catch (Exception ex) {}
+            try {
+                H5.H5Fclose(H5fid);
+            } catch (Exception ex) {
+            }
             H5fid = HDF5Constants.H5I_INVALID_HID;
         }
         _deleteFile(H5_FILE);
+        _deleteFile(H5_FILE2);
         System.out.println();
     }
 
@@ -79,18 +86,25 @@ public class TestH5F {
 
         try {
             plist = H5.H5Fget_create_plist(H5fid);
+        } catch (Throwable err) {
+            fail("H5.H5Fget_create_plist error: " + err);
         }
-        catch (Throwable err) {
-            fail("H5.H5Fget_create_plist: " + err);
-        }
+        System.out.println("H5.H5Fget_create_plist plist result: " + plist);
         assertTrue(plist > 0);
-        try {H5.H5Pclose(plist);} catch (HDF5LibraryException e) {e.printStackTrace();}
+        try {
+            H5.H5Pclose(plist);
+        } catch (HDF5LibraryException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test(expected = HDF5LibraryException.class)
     public void testH5Fget_create_plist_closed() throws Throwable {
         if (H5fid > 0) {
-            try {H5.H5Fclose(H5fid);} catch (Exception ex) {}
+            try {
+                H5.H5Fclose(H5fid);
+            } catch (Exception ex) {
+            }
         }
 
         // it should fail because the file was closed.
@@ -103,18 +117,24 @@ public class TestH5F {
 
         try {
             plist = H5.H5Fget_access_plist(H5fid);
-        }
-        catch (Throwable err) {
+        } catch (Throwable err) {
             fail("H5.H5Fget_access_plist: " + err);
         }
         assertTrue(plist > 0);
-        try {H5.H5Pclose(plist);} catch (HDF5LibraryException e) {e.printStackTrace();}
+        try {
+            H5.H5Pclose(plist);
+        } catch (HDF5LibraryException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test(expected = HDF5LibraryException.class)
     public void testH5Fget_access_plist_closed() throws Throwable {
         if (H5fid > 0) {
-            try {H5.H5Fclose(H5fid);} catch (Exception ex) {}
+            try {
+                H5.H5Fclose(H5fid);
+            } catch (Exception ex) {
+            }
         }
 
         // it should fail because the file was closed.
@@ -126,21 +146,22 @@ public class TestH5F {
         int intent = 0;
 
         if (H5fid > 0) {
-            try {H5.H5Fclose(H5fid);} catch (Exception ex) {}
+            try {
+                H5.H5Fclose(H5fid);
+            } catch (Exception ex) {
+            }
             H5fid = HDF5Constants.H5I_INVALID_HID;
         }
 
         try {
             H5fid = H5.H5Fopen(H5_FILE, HDF5Constants.H5F_ACC_RDWR,
                     HDF5Constants.H5P_DEFAULT);
-        }
-        catch (Throwable err) {
+        } catch (Throwable err) {
             fail("H5.H5Fopen: " + err);
         }
         try {
             intent = H5.H5Fget_intent(H5fid);
-        }
-        catch (Throwable err) {
+        } catch (Throwable err) {
             fail("H5.H5Fget_intent: " + err);
         }
         assertEquals(HDF5Constants.H5F_ACC_RDWR, intent);
@@ -151,21 +172,22 @@ public class TestH5F {
         int intent = 0;
 
         if (H5fid > 0) {
-            try {H5.H5Fclose(H5fid);} catch (Exception ex) {}
+            try {
+                H5.H5Fclose(H5fid);
+            } catch (Exception ex) {
+            }
             H5fid = HDF5Constants.H5I_INVALID_HID;
         }
 
         try {
             H5fid = H5.H5Fopen(H5_FILE, HDF5Constants.H5F_ACC_RDONLY,
                     HDF5Constants.H5P_DEFAULT);
-        }
-        catch (Throwable err) {
+        } catch (Throwable err) {
             fail("H5.H5Fopen: " + err);
         }
         try {
             intent = H5.H5Fget_intent(H5fid);
-        }
-        catch (Throwable err) {
+        } catch (Throwable err) {
             fail("H5.H5Fget_intent: " + err);
         }
         assertEquals(HDF5Constants.H5F_ACC_RDONLY, intent);
@@ -187,16 +209,14 @@ public class TestH5F {
                     HDF5Constants.H5P_DEFAULT);
             assertTrue("H5Fopen failed", fid2 > 0);
             fileno1 = H5.H5Fget_fileno(fid1);
-            assertTrue("H5Fget_fileno1="+fileno1, fileno1 > 0);
+            assertTrue("H5Fget_fileno1=" + fileno1, fileno1 > 0);
             fileno2 = H5.H5Fget_fileno(fid2);
-            assertTrue("H5Fget_fileno2="+fileno2, fileno2 > 0);
+            assertTrue("H5Fget_fileno2=" + fileno2, fileno2 > 0);
 
-            assertEquals("fileno1["+fileno1+"]!=fileno2["+fileno2+"]", fileno1, fileno2);
-        }
-        catch (Throwable err) {
+            assertEquals("fileno1[" + fileno1 + "]!=fileno2[" + fileno2 + "]", fileno1, fileno2);
+        } catch (Throwable err) {
             fail("testH5Fget_fileno_same: " + err);
-        }
-        finally {
+        } finally {
             H5.H5Fclose(fid1);
             H5.H5Fclose(fid2);
         }
@@ -215,16 +235,14 @@ public class TestH5F {
             assertTrue("H5Fcreate failed", fid2 > 0);
 
             fileno1 = H5.H5Fget_fileno(H5fid);
-            assertTrue("H5Fget_fileno1="+fileno1, fileno1 > 0);
+            assertTrue("H5Fget_fileno1=" + fileno1, fileno1 > 0);
             fileno2 = H5.H5Fget_fileno(fid2);
-            assertTrue("H5Fget_fileno2="+fileno2, fileno2 > 0);
+            assertTrue("H5Fget_fileno2=" + fileno2, fileno2 > 0);
 
-            assertNotEquals("fileno1["+fileno1+"]==fileno2["+fileno2+"]", fileno1, fileno2);
-        }
-        catch (Throwable err) {
+            assertNotEquals("fileno1[" + fileno1 + "]==fileno2[" + fileno2 + "]", fileno1, fileno2);
+        } catch (Throwable err) {
             fail("testH5Fget_fileno_diff: " + err);
-        }
-        finally {
+        } finally {
             H5.H5Fclose(fid2);
         }
     }
@@ -236,8 +254,7 @@ public class TestH5F {
         for (int i = 0; i < OBJ_TYPES.length; i++) {
             try {
                 count = H5.H5Fget_obj_count(H5fid, OBJ_TYPES[i]);
-            }
-            catch (Throwable err) {
+            } catch (Throwable err) {
                 fail("H5.H5Fget_obj_count: " + err);
             }
 
@@ -249,7 +266,7 @@ public class TestH5F {
     public void testH5Fget_obj_ids() {
         long count = 0;
         long max_objs = 100;
-        long[] obj_id_list = new long[(int)max_objs];
+        long[] obj_id_list = new long[(int) max_objs];
         int[] open_obj_counts = new int[OBJ_TYPES.length];
 
         for (int i = 0; i < OBJ_TYPES.length; i++)
@@ -263,8 +280,7 @@ public class TestH5F {
             try {
                 count = H5.H5Fget_obj_ids(H5fid, OBJ_TYPES[i], max_objs,
                         obj_id_list);
-            }
-            catch (Throwable err) {
+            } catch (Throwable err) {
                 fail("H5.H5Fget_obj_ids: " + err);
             }
             assertEquals(count, open_obj_counts[i]);
